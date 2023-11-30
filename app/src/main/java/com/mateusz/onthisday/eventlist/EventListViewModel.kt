@@ -4,10 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mateusz.onthisday.data.remote.responses.Events
 import com.mateusz.onthisday.repository.EventRepository
-import com.mateusz.onthisday.util.Constants.PAGE_SIZE
-import com.mateusz.onthisday.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,7 +18,7 @@ class EventListViewModel @Inject constructor(
     var isLoading = mutableStateOf(false)
 
 
-  var cachedEventList = mutableStateOf<List<Any?>>(emptyList())
+  var eventList = mutableStateOf<List<Any?>>(emptyList())
 
     init {
         loadEventsPaginated()
@@ -32,13 +29,13 @@ class EventListViewModel @Inject constructor(
 
             isLoading.value = true
             try {
-                Log.d("Log result", "przed result")
+                //val result = repository.getEventList("11", "26",10,10)
                 val result = repository.getEventListOfType("selected","11", "26")
-                Log.d("result", result.message.toString())
-                Log.d("Log result", "po result")
 
-                cachedEventList.value = listOf(result)
-                Log.d("Test", cachedEventList.value.get(1).toString())
+                Log.d("result", result.data.toString())
+
+                eventList.value = listOf(result)
+                Log.d("Test", eventList.value.get(1).toString())
             }catch (e: Exception){
                 Log.d("Error", e.toString())
             }

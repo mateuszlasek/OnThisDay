@@ -1,7 +1,12 @@
 package com.mateusz.onthisday.data.remote.responses
 
-data class Titles(
-    val canonical: String,
-    val display: String,
-    val normalized: String
+import com.google.gson.annotations.SerializedName
+
+
+data class Titles (
+
+  @SerializedName("canonical"  ) var canonical  : String? = null,
+  @SerializedName("normalized" ) var normalized : String? = null,
+  @SerializedName("display"    ) var display    : String? = null
+
 )

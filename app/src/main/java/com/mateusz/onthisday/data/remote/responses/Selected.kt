@@ -1,7 +1,13 @@
 package com.mateusz.onthisday.data.remote.responses
 
-data class Selected(
-    val pages: List<PageXXXX>,
-    val text: String,
-    val year: Int
+import com.google.gson.annotations.SerializedName
+import com.mateusz.onthisday.data.remote.responses.Pages
+
+
+data class Selected (
+
+    @SerializedName("text"  ) var text  : String?          = null,
+    @SerializedName("pages" ) var pages : ArrayList<Pages> = arrayListOf(),
+    @SerializedName("year"  ) var year  : Int?             = null
+
 )

@@ -1,6 +1,7 @@
 package com.mateusz.onthisday.data.remote
 
 import com.mateusz.onthisday.data.remote.responses.Events
+import com.mateusz.onthisday.data.remote.responses.ExampleJson2KtKotlin
 import com.mateusz.onthisday.data.remote.responses.Selected
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -14,7 +15,7 @@ interface EventApi {
         @Path("DD") day: String,
         @Query("limit") limit: Int,
         @Query("offset") offset: Int
-    ): Events
+    ): ExampleJson2KtKotlin
 
     @GET("en/onthisday/{type}/{MM}/{DD}")
     suspend fun getEventListOfType(
@@ -23,5 +24,5 @@ interface EventApi {
         @Path("DD") day: String,
         //@Query("limit") limit: Int,
         //@Query("offset") offset: Int
-    ): List<Selected>
+    ): ExampleJson2KtKotlin
 }
