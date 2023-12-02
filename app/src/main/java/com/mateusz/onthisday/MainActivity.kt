@@ -5,6 +5,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -146,27 +148,26 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                        ) {
+                        ) { innerPadding ->
+                            Column(
+                                modifier = Modifier
+                                    .padding(innerPadding),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                val viewModel: EventListViewModel = viewModel()
+                                NavHost(navController = navController, startDestination = "All"){
+                                    composable("All"){
 
-
+                                    }
+                                    composable("Urgent"){
+                                        EventListScreen(viewModel)
+                                     }
+                                }
+                            }
                         }
                     }
-                }
-                val viewModel: EventListViewModel = viewModel()
-                NavHost(navController = navController, startDestination = "All"){
-                    composable("All"){
-
-                    }
-                    composable("Urgent"){
-                        EventListScreen(viewModel)
-                    }
-
                 }
             } //theme end
         }
     }
-}
-@Composable
-fun SetupNav(){
-
 }

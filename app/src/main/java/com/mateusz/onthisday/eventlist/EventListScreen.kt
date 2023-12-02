@@ -3,6 +3,7 @@ package com.mateusz.onthisday.eventlist
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,47 +47,41 @@ fun EventListScreen(viewModel: EventListViewModel) {
             // Kółko ładowania z animacją
             CircularProgressIndicator(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(100.dp)
                     .padding(16.dp)
                     .animateContentSize(),
                 color = MaterialTheme.colorScheme.primary // Możesz dostosować kolor
             )
         } else {
+
+            Box(
+
+            ){
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowLeft,
+                        contentDescription = "Previous day"
+                    )
+                }
+            }
+
             // Wyświetlanie listy zdarzeń
             LazyColumn {
                 items(eventList.value.data?.selected ?: emptyList()) { event ->
                     when(event){
                         is Selected ->{
-                            Text(text = event.pages[0].titles?.normalized.toString())
-                            Text(text = event.year.toString())
-                            Text(text = event.text.toString())
+                            Column(
+                                modifier = Modifier
+                                    .padding(bottom = 16.dp)
+                            ) {
+                                Text(text = event.pages[0].titles?.normalized.toString())
+                                Text(text = event.year.toString())
+                                Text(text = event.text.toString())
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-fun BirthItem(birth: Births) {
-    // Tutaj możesz dostosować, jak wyświetlasz informacje o urodzeniu
-    Text(text = "Birth: ${birth.text}, Year: ${birth.year}")
-}
-
-@Composable
-fun DeathItem(death: Deaths) {
-    // Tutaj możesz dostosować, jak wyświetlasz informacje o śmierci
-    Text(text = "Death: ${death.text}, Year: ${death.year}")
-}
-
-@Composable
-fun EventItem(event: Events) {
-    // Tutaj możesz dostosować, jak wyświetlasz informacje o wydarzeniu
-    Text(text = "Event: ${event.text} Year: ${event.year}")
-}
-
-@Composable
-fun UnknownEventItem() {
-    Text(text = "Unknown Event")
 }
