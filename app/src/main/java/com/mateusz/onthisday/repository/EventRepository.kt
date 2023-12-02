@@ -1,9 +1,7 @@
 package com.mateusz.onthisday.repository
 
 import com.mateusz.onthisday.data.remote.EventApi
-import com.mateusz.onthisday.data.remote.responses.Events
-import com.mateusz.onthisday.data.remote.responses.ExampleJson2KtKotlin
-import com.mateusz.onthisday.data.remote.responses.Selected
+import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.util.Resource
 import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
@@ -13,7 +11,7 @@ class EventRepository @Inject constructor(
     private val api: EventApi
 ){
 
-    suspend fun getEventList(month: String, day: String, limit: Int, offset: Int): Resource<ExampleJson2KtKotlin> {
+    suspend fun getEventList(month: String, day: String, limit: Int, offset: Int): Resource<AllEvents> {
         return try {
             val response = api.getEventList(month, day, limit, offset)
             Resource.Success(response)
@@ -22,7 +20,7 @@ class EventRepository @Inject constructor(
             return Resource.Error("An error occurred: ${e.message}", null)
         }
     }                                                                       //limit: Int, offset: Int
-    suspend fun getEventListOfType(type: String, month: String, day: String): Resource<ExampleJson2KtKotlin> {
+    suspend fun getEventListOfType(type: String, month: String, day: String): Resource<AllEvents> {
         return try {
 
             val response = api.getEventListOfType(type, month, day) //, limit, offset

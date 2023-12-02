@@ -4,6 +4,7 @@ package com.mateusz.onthisday.eventlist
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,17 +14,22 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mateusz.onthisday.data.remote.responses.Births
 import com.mateusz.onthisday.data.remote.responses.Deaths
 import com.mateusz.onthisday.data.remote.responses.Events
+import com.mateusz.onthisday.data.remote.responses.Selected
 
 @Composable
 fun EventListScreen(viewModel: EventListViewModel) {
-    val events = viewModel.cachedEventList.value
-    val isLoading = viewModel.isLoading.value
+    //val events = viewModel.eventList.value
+    val eventList by remember { mutableStateOf(viewModel.eventList) }
+    val isLoading by remember { viewModel.isLoading }
 
     Column(
         modifier = Modifier
@@ -44,23 +50,12 @@ fun EventListScreen(viewModel: EventListViewModel) {
         } else {
             // Wyświetlanie listy zdarzeń
             LazyColumn {
-                items(events) { event ->
-                    when (event) {
-                        is Events -> {
-                            // Obsługa klasy Events, np. wyświetlanie ogólnego nagłówka itp.
-                            Text(text = "Events Header")
-                            event.pages.forEach { page ->
-                                when (page) {
-                                  //  is Births -> BirthItem(page)
-                                   // is Deaths -> DeathItem(page)
-                                   // is Events -> EventItem(page)
-                                    // Dodaj obsługę innych kategorii (np. Holiday, Selected) według potrzeb
-                                    else -> UnknownEventItem()
-                                }
-                            }
-                        }
-                        else -> {
-                            UnknownEventItem()
+                items(eventList.value.data?.selected ?: emptyList()) { event ->
+                    when(event){
+                        is Selected ->{
+                            Text(text = event.pages[0].titles?.normalized.toString())
+                            Text(text = event.year.toString())
+                            Text(text = event.text.toString())
                         }
                     }
                 }

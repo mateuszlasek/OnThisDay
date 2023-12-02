@@ -3,7 +3,7 @@ package com.mateusz.onthisday.data.remote.responses
 import com.google.gson.annotations.SerializedName
 
 
-data class ExampleJson2KtKotlin (
+data class AllEvents (
 
     @SerializedName("selected" ) var selected : ArrayList<Selected> = arrayListOf(),
     @SerializedName("births"   ) var births   : ArrayList<Births>   = arrayListOf(),
