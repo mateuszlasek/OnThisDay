@@ -1,7 +1,6 @@
 package com.mateusz.onthisday.eventlist
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +11,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,27 +29,27 @@ class EventListViewModel @Inject constructor(
     var _eventList = MutableStateFlow<Resource<AllEvents>>(Resource.Loading())
     val eventList: StateFlow<Resource<AllEvents>> = _eventList
     init {
-        loadEventsPaginated()
+
+        reloadEventsByDate(Calendar.getInstance().time)
     }
 
-    private fun loadEventsPaginated(){
+    fun reloadEventsByDate(date: Date) {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+
+        val month = String.format("%02d", calendar.get(Calendar.MONTH) + 1)
+        val day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH))
+
         viewModelScope.launch {
-
             isLoading.value = true
-
             try {
-                //val result = repository.getEventList("11", "26",10,10)
-                val result = repository.getEventListOfType("selected","11", "26")
+                val result = repository.getEventListOfType("selected", month, day)
                 _eventList.value = Resource.Success(result.data!!)
                 isLoading.value = false
-                //Log.d("result", result.data.toString())
-
-
-
-
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.d("Error", e.toString())
             }
         }
     }
 }
+
