@@ -11,8 +11,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,15 +34,14 @@ class EventListViewModel @Inject constructor(
     val eventList: StateFlow<Resource<AllEvents>> = _eventList
     init {
 
-        reloadEventsByDate(Calendar.getInstance().time)
+        reloadEventsByDate(LocalDate.now())
     }
 
-    fun reloadEventsByDate(date: Date) {
-        val calendar = Calendar.getInstance()
-        calendar.time = date
+    fun reloadEventsByDate(date: LocalDate) {
 
-        val month = String.format("%02d", calendar.get(Calendar.MONTH) + 1)
-        val day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH))
+        val month = DateTimeFormatter.ofPattern("MM").format(date)
+        val day = DateTimeFormatter.ofPattern("dd").format(date)
+
 
         viewModelScope.launch {
             isLoading.value = true

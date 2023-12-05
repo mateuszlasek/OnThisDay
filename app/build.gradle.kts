@@ -35,6 +35,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -106,15 +107,24 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48.1")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    //implementation("androidx.hilt:hilt-navigation-compose:1.0.0-alpha01")
 
 
-    // implementation("androidx.hilt:hilt-navigation-compose:1.0.0-alpha01")
 
-    //implementation("com.android.support:palette-v7:28.0.0")
-    //json?
-    implementation("com.google.code.gson:gson:2.8.6")
-    //javapoet error
+
+    //gson
+    implementation("com.google.code.gson:gson:2.9.0")
+
+    //javapoet
     implementation("com.squareup:javapoet:1.13.0")
+
+    //Date dialog
+    implementation("io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+
+
+
+
 }
 kapt {
     correctErrorTypes = true

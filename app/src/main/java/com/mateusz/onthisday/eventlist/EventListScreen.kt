@@ -2,11 +2,11 @@ package com.mateusz.onthisday.eventlist
 
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,25 +28,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mateusz.onthisday.data.remote.responses.Births
-import com.mateusz.onthisday.data.remote.responses.Deaths
-import com.mateusz.onthisday.data.remote.responses.Events
 import com.mateusz.onthisday.data.remote.responses.Selected
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun EventListScreen(viewModel: EventListViewModel) {
     //val events = viewModel.eventList.value
     val eventList by remember { mutableStateOf(viewModel.eventList) }
     val isLoading by remember { viewModel.isLoading }
-    var currentDate by remember { mutableStateOf(Calendar.getInstance().time) }
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
 
-
+    val dateDialogState = rememberMaterialDialogState()
 
     Column(
         modifier = Modifier
@@ -76,10 +73,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = {
-                        val previousDay = Calendar.getInstance()
-                        previousDay.time = currentDate
-                        previousDay.add(Calendar.DAY_OF_YEAR, -1)
-                        currentDate = previousDay.time
+                        currentDate = currentDate.minusDays(1)
 
                         viewModel.reloadEventsByDate(currentDate)
                     }) {
@@ -90,10 +84,8 @@ fun EventListScreen(viewModel: EventListViewModel) {
                     }
 
                     IconButton(onClick = {
-                        val nextDay = Calendar.getInstance()
-                        nextDay.time = currentDate
-                        nextDay.add(Calendar.DAY_OF_YEAR, 1)
-                        currentDate = nextDay.time
+                        currentDate = currentDate.plusDays(1)
+
 
                         viewModel.reloadEventsByDate(currentDate)
                     }) {
@@ -105,8 +97,15 @@ fun EventListScreen(viewModel: EventListViewModel) {
                 }
 
                 Box(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clickable {
+
+                            dateDialogState.show()
+
+                        },
                     contentAlignment = Alignment.Center
+
                 ) {
                     // Display the current date
                     // You can customize the formatting based on your needs
@@ -122,6 +121,27 @@ fun EventListScreen(viewModel: EventListViewModel) {
 
                         Text(text = formattedDate(currentDate))
                     }
+                }
+            }
+
+            MaterialDialog (
+                dialogState = dateDialogState,
+                buttons = {
+
+                    positiveButton(text = "Ok"){
+
+                    }
+                    negativeButton(text = "Cancel")
+
+                } ,
+            ){
+                datepicker(
+                    initialDate = LocalDate.now(),
+                    title = "Pick a date",
+
+                ){
+                    currentDate = it
+                    viewModel.reloadEventsByDate(currentDate)
                 }
             }
 
@@ -147,9 +167,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
 }
 
 @Composable
-fun formattedDate(date: Date): String {
-    val dateFormat = SimpleDateFormat("d MMM", Locale.getDefault())
-    return dateFormat.format(date)
+fun formattedDate(date: LocalDate): String {
+    return DateTimeFormatter.ofPattern("d MMM").format(date)
 }
-
 
