@@ -30,10 +30,10 @@ class EventListViewModel @Inject constructor(
     val eventList: StateFlow<Resource<AllEvents>> = _eventList
     init {
 
-        reloadEventsByDate(LocalDate.now())
+        reloadEventsByDate(LocalDate.now(), "selected")
     }
 
-    fun reloadEventsByDate(date: LocalDate) {
+    fun reloadEventsByDate(date: LocalDate, type: String) {
 
         val month = DateTimeFormatter.ofPattern("MM").format(date)
         val day = DateTimeFormatter.ofPattern("dd").format(date)
@@ -42,7 +42,7 @@ class EventListViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading.value = true
             try {
-                val result = repository.getEventListOfType("selected", month, day)
+                val result = repository.getEventListOfType(type, month, day)
                 _eventList.value = Resource.Success(result.data!!)
                 isLoading.value = false
             } catch (e: Exception) {
