@@ -1,7 +1,9 @@
 package com.mateusz.onthisday.eventlist
 
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,11 +36,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.mateusz.onthisday.data.remote.responses.Selected
 import com.mateusz.onthisday.ui.theme.Grey10
 import com.mateusz.onthisday.ui.theme.Grey20
@@ -54,6 +61,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
     val eventList by remember { mutableStateOf(viewModel.eventList) }
     val isLoading by remember { viewModel.isLoading }
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    
 
     val dateDialogState = rememberMaterialDialogState()
 
@@ -141,8 +149,6 @@ fun EventListScreen(viewModel: EventListViewModel) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-
-
             // Wyświetlanie listy zdarzeń
             LazyColumn(
                 modifier = Modifier
@@ -158,24 +164,44 @@ fun EventListScreen(viewModel: EventListViewModel) {
                                     .clickable {
 
                                     }
-
-
-                                    .padding(8.dp)
                             ) {
-                                Text(
-                                    text = event.year.toString(),
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    modifier = Modifier,
-                                    text = event.pages[0].titles?.normalized.toString(),
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                ){
+                                    Text(
+                                        text = event.year.toString(),
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        modifier = Modifier,
+                                        text = event.pages[0].titles?.normalized.toString(),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(text = event.text.toString())
+                                }
+
+
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                Text(text = event.text.toString())
+
+                                AsyncImage(
+                                    model = event.pages[0].originalimage?.source.toString(),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
+
+
+
+
+
+                                )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
