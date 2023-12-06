@@ -2,17 +2,21 @@ package com.mateusz.onthisday.eventlist
 
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -28,8 +32,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mateusz.onthisday.data.remote.responses.Selected
+import com.mateusz.onthisday.ui.theme.Grey10
+import com.mateusz.onthisday.ui.theme.Grey20
+import com.mateusz.onthisday.ui.theme.Grey90
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -48,7 +60,8 @@ fun EventListScreen(viewModel: EventListViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(Grey20),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -65,6 +78,8 @@ fun EventListScreen(viewModel: EventListViewModel) {
 
 
             Box(
+                modifier = Modifier
+                    .background(Grey10),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -124,6 +139,50 @@ fun EventListScreen(viewModel: EventListViewModel) {
                 }
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+
+            // Wyświetlanie listy zdarzeń
+            LazyColumn(
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp)
+            ) {
+                items(eventList.value.data?.selected ?: emptyList()) { event ->
+                    when(event){
+                        is Selected ->{
+                            Column(
+                                modifier = Modifier
+                                    .background(Grey10, RoundedCornerShape(16.dp))
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable {
+
+                                    }
+
+
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = event.year.toString(),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    modifier = Modifier,
+                                    text = event.pages[0].titles?.normalized.toString(),
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(text = event.text.toString())
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
+
             MaterialDialog (
                 dialogState = dateDialogState,
                 buttons = {
@@ -139,29 +198,12 @@ fun EventListScreen(viewModel: EventListViewModel) {
                     initialDate = LocalDate.now(),
                     title = "Pick a date",
 
-                ){
+                    ){
                     currentDate = it
                     viewModel.reloadEventsByDate(currentDate)
                 }
             }
 
-            // Wyświetlanie listy zdarzeń
-            LazyColumn {
-                items(eventList.value.data?.selected ?: emptyList()) { event ->
-                    when(event){
-                        is Selected ->{
-                            Column(
-                                modifier = Modifier
-                                    .padding(bottom = 16.dp)
-                            ) {
-                                Text(text = event.pages[0].titles?.normalized.toString())
-                                Text(text = event.year.toString())
-                                Text(text = event.text.toString())
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
