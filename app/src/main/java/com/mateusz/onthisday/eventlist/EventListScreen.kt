@@ -53,14 +53,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.data.remote.responses.Selected
 import com.mateusz.onthisday.ui.theme.Grey10
 import com.mateusz.onthisday.ui.theme.Grey20
 import com.mateusz.onthisday.ui.theme.Grey90
+import com.mateusz.onthisday.util.Resource
 import com.mateusz.onthisday.util.TabItem
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -71,7 +74,8 @@ fun EventListScreen(viewModel: EventListViewModel) {
     val eventList by remember { mutableStateOf(viewModel.eventList) }
     val isLoading by remember { viewModel.isLoading }
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
-    var type by remember { mutableStateOf("selected") }
+    var type by remember { mutableStateOf("") }
+
 
     val tabItems = listOf(
         TabItem(
@@ -132,7 +136,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                 LaunchedEffect(selectedTabIndex){
                     pagerState.animateScrollToPage(selectedTabIndex)
                 }
-                LaunchedEffect(pagerState.currentPage){
+                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress){
                     if(!pagerState.isScrollInProgress) {
                         selectedTabIndex = pagerState.currentPage
                     }
@@ -146,7 +150,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                         IconButton(onClick = {
                             currentDate = currentDate.minusDays(1)
 
-                            viewModel.reloadEventsByDate(currentDate, type)
+                            viewModel.reloadEventsByDate(currentDate)
                         }) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowLeft,
@@ -170,7 +174,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                             currentDate = currentDate.plusDays(1)
 
 
-                            viewModel.reloadEventsByDate(currentDate, type)
+                            viewModel.reloadEventsByDate(currentDate)
                         }) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
@@ -179,10 +183,12 @@ fun EventListScreen(viewModel: EventListViewModel) {
                         }
                     }
 
+
                     ScrollableTabRow(
                         modifier = Modifier
-                            .padding(end=8.dp),
+                            .padding(0.dp),
                         containerColor = Grey10,
+                        edgePadding = 0.dp,
                         selectedTabIndex = selectedTabIndex
                     ) {
                         tabItems.forEachIndexed { index, tabItem ->
@@ -206,75 +212,32 @@ fun EventListScreen(viewModel: EventListViewModel) {
                     ) {index ->
 
                         type = tabItems[index].type
-                        //something here
+
+                        when (type) {
+                            "selected" -> SelectedList(eventList = eventList)
+                            "events" -> EventsList(eventList = eventList)
+                            "births" -> BirthsList(eventList = eventList)
+                            "deaths" -> DeathsList(eventList = eventList)
+                            "holidays" -> HolidaysList(eventList = eventList)
+                            else -> {
+                                Log.d("Error", "EmptyList")
+                                emptyList<AllEvents>()
+                            }
+                        }
 
                     }
-
                 }
             }
+
+
+
 
 
 
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Wyświetlanie listy zdarzeń
-            LazyColumn(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp)
-            ) {
-                items(eventList.value.data?.selected ?: emptyList()) { event ->
-                    Column(
-                        modifier = Modifier
-                            .background(Grey10, RoundedCornerShape(16.dp))
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable {
 
-                            }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(8.dp)
-                        ){
-                            Text(
-                                text = event.year.toString(),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                modifier = Modifier,
-                                text = event.pages[0].titles?.normalized.toString(),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(text = event.text.toString())
-                        }
-
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-
-                        AsyncImage(
-                            model = event.pages[0].originalimage?.source.toString(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 0.dp,
-                                        topEnd = 0.dp,
-                                        bottomStart = 16.dp,
-                                        bottomEnd = 16.dp
-                                    )
-                                )
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
 
             MaterialDialog (
                 dialogState = dateDialogState,
@@ -293,7 +256,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
 
                     ){
                     currentDate = it
-                    viewModel.reloadEventsByDate(currentDate, type)
+                    viewModel.reloadEventsByDate(currentDate)
                 }
             }
 
@@ -305,4 +268,310 @@ fun EventListScreen(viewModel: EventListViewModel) {
 fun formattedDate(date: LocalDate): String {
     return DateTimeFormatter.ofPattern("d MMM").format(date)
 }
+
+@Composable
+fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
+    // Wyświetlanie listy zdarzeń
+    LazyColumn(
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
+
+        items(eventList.value.data?.selected ?: emptyList()) { event ->
+            Column(
+                modifier = Modifier
+                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+
+                    }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ){
+                    Text(
+                        text = event.year.toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier,
+                        text = event.pages[0].titles?.normalized.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = event.text.toString())
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                AsyncImage(
+                    model = event.pages[0].originalimage?.source.toString(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+@Composable
+fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
+    // Wyświetlanie listy zdarzeń
+    LazyColumn(
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
+
+        items(eventList.value.data?.events ?: emptyList()) { event ->
+            Column(
+                modifier = Modifier
+                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+
+                    }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ){
+                    Text(
+                        text = event.year.toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier,
+                        text = event.pages[0].titles?.normalized.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = event.text.toString())
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                AsyncImage(
+                    model = event.pages[0].originalimage?.source.toString(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
+    // Wyświetlanie listy zdarzeń
+    LazyColumn(
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
+
+        items(eventList.value.data?.births ?: emptyList()) { event ->
+            Column(
+                modifier = Modifier
+                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+
+                    }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ){
+                    Text(
+                        text = event.year.toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier,
+                        text = event.pages[0].titles?.normalized.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = event.text.toString())
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                AsyncImage(
+                    model = event.pages[0].originalimage?.source.toString(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
+    // Wyświetlanie listy zdarzeń
+    LazyColumn(
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
+
+        items(eventList.value.data?.deaths ?: emptyList()) { event ->
+            Column(
+                modifier = Modifier
+                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+
+                    }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ){
+                    Text(
+                        text = event.year.toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier,
+                        text = event.pages[0].titles?.normalized.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = event.text.toString())
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                AsyncImage(
+                    model = event.pages[0].originalimage?.source.toString(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
+    // Wyświetlanie listy zdarzeń
+    LazyColumn(
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
+    ) {
+
+        items(eventList.value.data?.holidays ?: emptyList()) { event ->
+            Column(
+                modifier = Modifier
+                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable {
+
+                    }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ){
+
+                    Text(
+                        modifier = Modifier,
+                        text = event.pages[0].titles?.normalized.toString(),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = event.text.toString())
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                AsyncImage(
+                    model = event.pages[0].originalimage?.source.toString(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+
 
