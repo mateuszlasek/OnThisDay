@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -24,8 +25,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -205,6 +209,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                         }
 
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                     if(!isError){
                         //Horizontal Pager
                         HorizontalPager(
@@ -298,6 +303,9 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
     ) {
 
         items(eventList.value.data?.selected ?: emptyList()) { event ->
+
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
             Column(
                 modifier = Modifier
                     .background(Grey10, RoundedCornerShape(16.dp))
@@ -310,11 +318,38 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
                     modifier = Modifier
                         .padding(8.dp)
                 ){
-                    Text(
-                        text = event.year.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = event.year.toString(),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ){
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to favourites") },
+                                    onClick = {isMenuExpanded = false})
+                            }
+
+                        }
+
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         modifier = Modifier,
@@ -359,6 +394,9 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
     ) {
 
         items(eventList.value.data?.events ?: emptyList()) { event ->
+
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
             Column(
                 modifier = Modifier
                     .background(Grey10, RoundedCornerShape(16.dp))
@@ -371,11 +409,37 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
                     modifier = Modifier
                         .padding(8.dp)
                 ){
-                    Text(
-                        text = event.year.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = event.year.toString(),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ){
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to favourites") },
+                                    onClick = {isMenuExpanded = false})
+                            }
+
+                        }
+
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         modifier = Modifier,
@@ -421,6 +485,9 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
     ) {
 
         items(eventList.value.data?.births ?: emptyList()) { event ->
+
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
             Column(
                 modifier = Modifier
                     .background(Grey10, RoundedCornerShape(16.dp))
@@ -432,12 +499,39 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
-                ){
-                    Text(
-                        text = event.year.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = event.year.toString(),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ) {
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded,
+                                onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to favourites") },
+                                    onClick = { isMenuExpanded = false })
+                            }
+
+                        }
+
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         modifier = Modifier,
@@ -483,6 +577,8 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
     ) {
 
         items(eventList.value.data?.deaths ?: emptyList()) { event ->
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
             Column(
                 modifier = Modifier
                     .background(Grey10, RoundedCornerShape(16.dp))
@@ -495,11 +591,37 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
                     modifier = Modifier
                         .padding(8.dp)
                 ){
-                    Text(
-                        text = event.year.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = event.year.toString(),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ){
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to favourites") },
+                                    onClick = {isMenuExpanded = false})
+                            }
+
+                        }
+
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         modifier = Modifier,
@@ -545,6 +667,9 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
     ) {
 
         items(eventList.value.data?.holidays ?: emptyList()) { event ->
+
+            var isMenuExpanded by remember { mutableStateOf(false) }
+
             Column(
                 modifier = Modifier
                     .background(Grey10, RoundedCornerShape(16.dp))
@@ -557,12 +682,37 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
                     modifier = Modifier
                         .padding(8.dp)
                 ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    ) {
+                        Text(
+                            modifier = Modifier,
+                            text = event.pages[0].titles?.normalized.toString(),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ){
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to favourites") },
+                                    onClick = {isMenuExpanded = false})
+                            }
 
-                    Text(
-                        modifier = Modifier,
-                        text = event.pages[0].titles?.normalized.toString(),
-                        fontWeight = FontWeight.Bold
-                    )
+                        }
+
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(text = event.text.toString())
