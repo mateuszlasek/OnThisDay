@@ -10,9 +10,7 @@ interface EventApi {
     @GET("en/onthisday/all/{MM}/{DD}") //en = {language}
     suspend fun getEventList(
         @Path("MM") month: String,
-        @Path("DD") day: String,
-        @Query("limit") limit: Int,
-        @Query("offset") offset: Int
+        @Path("DD") day: String
     ): AllEvents
 
     @GET("en/onthisday/{type}/{MM}/{DD}")

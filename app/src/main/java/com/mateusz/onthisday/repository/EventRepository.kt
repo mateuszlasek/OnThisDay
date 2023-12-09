@@ -11,9 +11,9 @@ class EventRepository @Inject constructor(
     private val api: EventApi
 ){
 
-    suspend fun getEventList(month: String, day: String, limit: Int, offset: Int): Resource<AllEvents> {
+    suspend fun getEventList(month: String, day: String): Resource<AllEvents> {
         return try {
-            val response = api.getEventList(month, day, limit, offset)
+            val response = api.getEventList(month, day)
             Resource.Success(response)
         } catch (e: Exception) {
             // Tutaj możesz także zalogować szczegóły błędu, aby uzyskać więcej informacji

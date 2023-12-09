@@ -26,6 +26,8 @@ class EventListViewModel @Inject constructor(
     var isLoading = mutableStateOf(false)
     var isSuccess = mutableStateOf(false)
     var endReached = mutableStateOf(false)
+    var loadError = mutableStateOf("")
+    var isError = mutableStateOf(false)
 
     var _eventList = MutableStateFlow<Resource<AllEvents>>(Resource.Loading())
     val eventList: StateFlow<Resource<AllEvents>> = _eventList
@@ -42,19 +44,26 @@ class EventListViewModel @Inject constructor(
 
         viewModelScope.launch {
             isLoading.value = true
-            try {
-                val result = repository.getEventList(month, day, PAGE_SIZE, curPage * PAGE_SIZE)
-                endReached.value = (result.data?.events?.size ?: 0) < PAGE_SIZE
-                curPage++
-                _eventList.value = Resource.Success(result.data!!)
-                isLoading.value = false
-            } catch (e: Exception) {
-                Log.d("Error", e.toString())
-                isLoading.value = false
-                // Handle error, update _eventList with error state if needed
-                _eventList.value = Resource.Error(e.localizedMessage ?: "An error occurred")
+            isError.value = false
+            val result = repository.getEventList(month, day)
+            when(result){
+                is Resource.Success ->{
+
+                    _eventList.value = Resource.Success(result.data!!)
+                    isLoading.value = false
+                }
+                is Resource.Error -> {
+                    loadError.value = result.message!!
+                    Log.d("Error: 2",loadError.value)
+                    isLoading.value = false
+                    isError.value = true
+
+                }
+                is Resource.Loading ->{
+
+                }
             }
         }
     }
-}
 
+}

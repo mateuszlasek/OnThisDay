@@ -4,7 +4,6 @@ package com.mateusz.onthisday.eventlist
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,13 +24,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,20 +42,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.mateusz.onthisday.data.remote.responses.AllEvents
-import com.mateusz.onthisday.data.remote.responses.Selected
 import com.mateusz.onthisday.ui.theme.Grey10
 import com.mateusz.onthisday.ui.theme.Grey20
-import com.mateusz.onthisday.ui.theme.Grey90
 import com.mateusz.onthisday.util.Resource
 import com.mateusz.onthisday.util.TabItem
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -71,10 +63,14 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EventListScreen(viewModel: EventListViewModel) {
     //val events = viewModel.eventList.value
-    val eventList by remember { mutableStateOf(viewModel.eventList) }
+    val eventList by remember { mutableStateOf(viewModel._eventList) }
     val isLoading by remember { viewModel.isLoading }
+    val isError by remember {
+        viewModel.isError
+    }
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var type by remember { mutableStateOf("") }
+
 
 
     val tabItems = listOf(
@@ -150,7 +146,10 @@ fun EventListScreen(viewModel: EventListViewModel) {
                         IconButton(onClick = {
                             currentDate = currentDate.minusDays(1)
 
+
+                            
                             viewModel.reloadEventsByDate(currentDate)
+                            Log.d("currentDate-rightclick:",currentDate.toString())
                         }) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowLeft,
@@ -206,38 +205,36 @@ fun EventListScreen(viewModel: EventListViewModel) {
                         }
 
                     }
-                    //Horizontal Pager
-                    HorizontalPager(
-                        state = pagerState,
-                    ) {index ->
+                    if(!isError){
+                        //Horizontal Pager
+                        HorizontalPager(
+                            state = pagerState,
+                        ) {index ->
 
-                        type = tabItems[index].type
+                            type = tabItems[index].type
 
-                        when (type) {
-                            "selected" -> SelectedList(eventList = eventList)
-                            "events" -> EventsList(eventList = eventList)
-                            "births" -> BirthsList(eventList = eventList)
-                            "deaths" -> DeathsList(eventList = eventList)
-                            "holidays" -> HolidaysList(eventList = eventList)
-                            else -> {
-                                Log.d("Error", "EmptyList")
-                                emptyList<AllEvents>()
+                            when (type) {
+                                "selected" -> SelectedList(eventList = eventList)
+                                "events" -> EventsList(eventList = eventList)
+                                "births" -> BirthsList(eventList = eventList)
+                                "deaths" -> DeathsList(eventList = eventList)
+                                "holidays" -> HolidaysList(eventList = eventList)
+                                else -> {
+                                    Log.d("Error", "EmptyList")
+                                    emptyList<AllEvents>()
+                                }
                             }
-                        }
 
+                        }
+                    } else {
+                        ErrorScreen(currentDate, viewModel)
                     }
+
+
                 }
             }
 
-
-
-
-
-
-
             Spacer(modifier = Modifier.height(8.dp))
-
-
 
             MaterialDialog (
                 dialogState = dateDialogState,
@@ -268,6 +265,29 @@ fun EventListScreen(viewModel: EventListViewModel) {
 fun formattedDate(date: LocalDate): String {
     return DateTimeFormatter.ofPattern("d MMM").format(date)
 }
+
+@Composable
+fun ErrorScreen(currentDate: LocalDate, viewModel: EventListViewModel) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Error", style = MaterialTheme.typography.headlineLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = {
+                viewModel.reloadEventsByDate(currentDate)
+            }) {
+                Text(text = "Refresh")
+            }
+        }
+    }
+}
+
 
 @Composable
 fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
@@ -572,6 +592,3 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
         }
     }
 }
-
-
-
