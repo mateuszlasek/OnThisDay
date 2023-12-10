@@ -4,11 +4,16 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mateusz.onthisday.data.db.EventDatabase
+import com.mateusz.onthisday.data.db.entity.Favourite
 import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.repository.EventRepository
+import com.mateusz.onthisday.repository.FavouriteRepository
 import com.mateusz.onthisday.util.Constants.PAGE_SIZE
 import com.mateusz.onthisday.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,8 +36,9 @@ class EventListViewModel @Inject constructor(
 
     var _eventList = MutableStateFlow<Resource<AllEvents>>(Resource.Loading())
     val eventList: StateFlow<Resource<AllEvents>> = _eventList
-    init {
 
+
+    init {
         reloadEventsByDate(LocalDate.now())
     }
 
@@ -65,5 +71,7 @@ class EventListViewModel @Inject constructor(
             }
         }
     }
+
+
 
 }

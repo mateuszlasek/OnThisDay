@@ -67,7 +67,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EventListScreen(viewModel: EventListViewModel) {
-    //val events = viewModel.eventList.value
+
     val eventList by remember { mutableStateOf(viewModel._eventList) }
     val isLoading by remember { viewModel.isLoading }
     val isError by remember {
@@ -133,13 +133,14 @@ fun EventListScreen(viewModel: EventListViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {
+            IconButton(
+                onClick = {
                 currentDate = currentDate.minusDays(1)
 
 
 
                 viewModel.reloadEventsByDate(currentDate)
-                Log.d("currentDate-rightclick:",currentDate.toString())
+
             }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
@@ -158,12 +159,13 @@ fun EventListScreen(viewModel: EventListViewModel) {
 
             ) {
                 Text(
-                    color = MaterialTheme.colorScheme.primary,
+
                     fontSize = 20.sp,
                     text = formattedDate(currentDate)
                 )
             }
-            IconButton(onClick = {
+            IconButton(
+                onClick = {
                 currentDate = currentDate.plusDays(1)
 
 
