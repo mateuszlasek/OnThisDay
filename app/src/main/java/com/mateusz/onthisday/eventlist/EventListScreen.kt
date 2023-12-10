@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.ui.theme.Grey10
 import com.mateusz.onthisday.ui.theme.Grey20
+import com.mateusz.onthisday.ui.theme.Grey90
 import com.mateusz.onthisday.util.Resource
 import com.mateusz.onthisday.util.TabItem
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -105,110 +106,129 @@ fun EventListScreen(viewModel: EventListViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Grey20),
+            .background(color = MaterialTheme.colorScheme.background),
 
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        var selectedTabIndex by remember {
+            mutableIntStateOf(0)
+        }
+        val pagerState = rememberPagerState {
+            tabItems.size
+        }
+        LaunchedEffect(selectedTabIndex){
+            pagerState.animateScrollToPage(selectedTabIndex)
+        }
+        LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress){
+            if(!pagerState.isScrollInProgress) {
+                selectedTabIndex = pagerState.currentPage
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                currentDate = currentDate.minusDays(1)
+
+
+
+                viewModel.reloadEventsByDate(currentDate)
+                Log.d("currentDate-rightclick:",currentDate.toString())
+            }) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    contentDescription = "Previous day"
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clickable {
+
+                        dateDialogState.show()
+
+                    },
+                contentAlignment = Alignment.Center
+
+            ) {
+                Text(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    text = formattedDate(currentDate)
+                )
+            }
+            IconButton(onClick = {
+                currentDate = currentDate.plusDays(1)
+
+
+                viewModel.reloadEventsByDate(currentDate)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = "Next day"
+                )
+            }
+        }
+
+
+        ScrollableTabRow(
+            modifier = Modifier
+                .padding(0.dp),
+            containerColor =  MaterialTheme.colorScheme.background,
+            edgePadding = 0.dp,
+            selectedTabIndex = selectedTabIndex
+        ) {
+            tabItems.forEachIndexed { index, tabItem ->
+                Tab(selected = index == selectedTabIndex,
+                    onClick = {
+                        selectedTabIndex = index
+                    },
+                    text = {
+                        Text(
+                            text = tabItem.title,
+                            softWrap = false,
+                        )
+                    }
+                )
+            }
+
+        }
+
         if (isLoading) {
             // Kółko ładowania z animacją
-            CircularProgressIndicator(
+            Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .padding(16.dp)
-                    .animateContentSize(),
-                color = MaterialTheme.colorScheme.primary // Możesz dostosować kolor
-            )
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+
+            ){
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(16.dp)
+                        .animateContentSize(),
+                    color = MaterialTheme.colorScheme.primary // Możesz dostosować kolor
+                )
+
+            }
+
         } else {
 
 
             Box(
                 modifier = Modifier
-                    .background(Grey10),
+                    .background(MaterialTheme.colorScheme.inverseOnSurface),
                 contentAlignment = Alignment.Center
             ) {
-                var selectedTabIndex by remember {
-                    mutableIntStateOf(0)
-                }
-                val pagerState = rememberPagerState {
-                    tabItems.size
-                }
-                LaunchedEffect(selectedTabIndex){
-                    pagerState.animateScrollToPage(selectedTabIndex)
-                }
-                LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress){
-                    if(!pagerState.isScrollInProgress) {
-                        selectedTabIndex = pagerState.currentPage
-                    }
-                }
+
                 Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = {
-                            currentDate = currentDate.minusDays(1)
 
-
-                            
-                            viewModel.reloadEventsByDate(currentDate)
-                            Log.d("currentDate-rightclick:",currentDate.toString())
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowLeft,
-                                contentDescription = "Previous day"
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-
-                                    dateDialogState.show()
-
-                                },
-                            contentAlignment = Alignment.Center
-
-                        ) {
-                            Text(text = formattedDate(currentDate))
-                        }
-                        IconButton(onClick = {
-                            currentDate = currentDate.plusDays(1)
-
-
-                            viewModel.reloadEventsByDate(currentDate)
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowRight,
-                                contentDescription = "Next day"
-                            )
-                        }
-                    }
-
-
-                    ScrollableTabRow(
-                        modifier = Modifier
-                            .padding(0.dp),
-                        containerColor = Grey10,
-                        edgePadding = 0.dp,
-                        selectedTabIndex = selectedTabIndex
-                    ) {
-                        tabItems.forEachIndexed { index, tabItem ->
-                            Tab(selected = index == selectedTabIndex,
-                                onClick = {
-                                    selectedTabIndex = index
-                                },
-                                text = {
-                                    Text(
-                                        text = tabItem.title,
-                                        softWrap = false,
-                                    )
-                                }
-                            )
-                        }
-
-                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     if(!isError){
                         //Horizontal Pager
@@ -308,7 +328,7 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -399,7 +419,7 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -490,7 +510,7 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -581,7 +601,7 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -672,7 +692,7 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(Grey10, RoundedCornerShape(16.dp))
+                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
