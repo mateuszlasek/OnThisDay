@@ -15,8 +15,8 @@ class FavouriteRepository(private val favouriteDao: FavouriteDao) {
     suspend fun insert(favourite: Favourite) = withContext(Dispatchers.IO) {
         favouriteDao.insert(favourite)
     }
-    suspend fun getFavouriteById(favouriteId: Int): Favourite = withContext(Dispatchers.IO){
-        favouriteDao.getFavouriteById(favouriteId)
+    suspend fun getFavouriteByTitle(favouriteTitle: String?): Favourite = withContext(Dispatchers.IO){
+        favouriteDao.getFavouriteByTitle(favouriteTitle)
     }
 
     suspend fun delete(favourite: Favourite) = withContext(Dispatchers.IO) {

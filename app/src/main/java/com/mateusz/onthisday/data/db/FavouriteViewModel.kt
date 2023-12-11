@@ -23,8 +23,8 @@ class FavouriteViewModel(app: Application) : AndroidViewModel(app) {
     fun getFavorites(): Flow<List<Favourite>> {
         return repositoryFav.getAll()
     }
-    suspend fun getFavouriteById(favouriteId: Int): Favourite {
-        return repositoryFav.getFavouriteById(favouriteId)
+    suspend fun getFavouriteByTitle(favouriteTitle: String?): Favourite {
+        return repositoryFav.getFavouriteByTitle(favouriteTitle)
     }
     suspend fun addToFavourites(event: Favourite){
         val favouriteQuote = Favourite(
