@@ -2,6 +2,7 @@ package com.mateusz.onthisday.eventlist
 
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -42,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +53,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.mateusz.onthisday.data.db.FavouriteViewModel
+import com.mateusz.onthisday.data.db.entity.Favourite
 import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.ui.theme.Grey10
 import com.mateusz.onthisday.ui.theme.Grey20
@@ -60,13 +64,18 @@ import com.mateusz.onthisday.util.TabItem
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EventListScreen(viewModel: EventListViewModel) {
+fun EventListScreen(
+    viewModel: EventListViewModel,
+    favouriteViewModel: FavouriteViewModel
+) {
 
     val eventList by remember { mutableStateOf(viewModel._eventList) }
     val isLoading by remember { viewModel.isLoading }
@@ -241,7 +250,7 @@ fun EventListScreen(viewModel: EventListViewModel) {
                             type = tabItems[index].type
 
                             when (type) {
-                                "selected" -> SelectedList(eventList = eventList)
+                                "selected" -> SelectedList(eventList = eventList, favouriteViewModel = favouriteViewModel)
                                 "events" -> EventsList(eventList = eventList)
                                 "births" -> BirthsList(eventList = eventList)
                                 "deaths" -> DeathsList(eventList = eventList)
@@ -317,7 +326,8 @@ fun ErrorScreen(currentDate: LocalDate, viewModel: EventListViewModel) {
 
 
 @Composable
-fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
+fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: FavouriteViewModel){
+    val coroutineScope = rememberCoroutineScope()
     // Wyświetlanie listy zdarzeń
     LazyColumn(
         modifier = Modifier
@@ -330,7 +340,10 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        RoundedCornerShape(16.dp)
+                    )
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -365,7 +378,22 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>){
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(text = "Add to favourites") },
-                                    onClick = {isMenuExpanded = false})
+                                    onClick = {
+                                        val favEvent = Favourite(
+                                            event.text,
+                                            event.pages[0].titles?.normalized.toString(),
+                                            event.pages[0].originalimage?.source.toString(),
+                                            event.year,
+                                            0
+                                        )
+                                        coroutineScope.launch {
+                                            if (favEvent != null) {
+                                                favouriteViewModel.addToFavourites(favEvent)
+                                            }
+                                        }
+
+                                        isMenuExpanded = false
+                                    })
                             }
 
                         }
@@ -421,7 +449,10 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        RoundedCornerShape(16.dp)
+                    )
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -456,7 +487,10 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(text = "Add to favourites") },
-                                    onClick = {isMenuExpanded = false})
+                                    onClick = {
+
+                                        isMenuExpanded = false
+                                    })
                             }
 
                         }
@@ -512,7 +546,10 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        RoundedCornerShape(16.dp)
+                    )
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -603,7 +640,10 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        RoundedCornerShape(16.dp)
+                    )
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 
@@ -694,7 +734,10 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
 
             Column(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        RoundedCornerShape(16.dp)
+                    )
                     .clip(RoundedCornerShape(16.dp))
                     .clickable {
 

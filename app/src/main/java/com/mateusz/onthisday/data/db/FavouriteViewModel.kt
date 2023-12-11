@@ -27,13 +27,25 @@ class FavouriteViewModel(app: Application) : AndroidViewModel(app) {
         return repositoryFav.getFavouriteById(favouriteId)
     }
     suspend fun addToFavourites(event: Favourite){
-        val favouriteQuote = Favourite(event.text, event.pages, event.year, event.id)
+        val favouriteQuote = Favourite(
+            event.text,
+            event.title,
+            event.originalimage,
+            event.year,
+            event.id
+        )
         viewModelScope.launch(Dispatchers.IO){
             repositoryFav.insert(favouriteQuote)
         }
     }
     suspend fun removeFromFavourites(event: Favourite){
-        val favouriteQuote = Favourite(event.text, event.pages, event.year, event.id)
+        val favouriteQuote = Favourite(
+            event.text,
+            event.title,
+            event.originalimage,
+            event.year,
+            event.id
+        )
         repositoryFav.delete(favouriteQuote)
     }
 
