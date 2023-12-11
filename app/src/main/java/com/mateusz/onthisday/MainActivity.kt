@@ -38,6 +38,7 @@ import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mateusz.onthisday.data.db.FavouriteViewModel
 import com.mateusz.onthisday.data.remote.EventApi
 import com.mateusz.onthisday.eventlist.EventListScreen
 import com.mateusz.onthisday.eventlist.EventListViewModel
@@ -138,12 +139,13 @@ class MainActivity : ComponentActivity() {
 
                         ){
                             val viewModel: EventListViewModel = viewModel()
+                            val favouriteViewModel: FavouriteViewModel = viewModel()
                             NavHost(navController = navController, startDestination = "Home"){
                                 composable("Home"){
-                                    EventListScreen(viewModel)
+                                    EventListScreen(viewModel, favouriteViewModel)
                                 }
                                 composable("Favourites"){
-
+                                    FavouriteScreen(favouriteViewModel = favouriteViewModel)
                                 }
                                 composable("Settings"){
 
