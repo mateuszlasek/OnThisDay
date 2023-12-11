@@ -1,8 +1,6 @@
 package com.mateusz.onthisday.eventlist
 
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -56,15 +54,11 @@ import coil.compose.AsyncImage
 import com.mateusz.onthisday.data.db.FavouriteViewModel
 import com.mateusz.onthisday.data.db.entity.Favourite
 import com.mateusz.onthisday.data.remote.responses.AllEvents
-import com.mateusz.onthisday.ui.theme.Grey10
-import com.mateusz.onthisday.ui.theme.Grey20
-import com.mateusz.onthisday.ui.theme.Grey90
 import com.mateusz.onthisday.util.Resource
 import com.mateusz.onthisday.util.TabItem
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -251,12 +245,11 @@ fun EventListScreen(
 
                             when (type) {
                                 "selected" -> SelectedList(eventList = eventList, favouriteViewModel = favouriteViewModel)
-                                "events" -> EventsList(eventList = eventList)
-                                "births" -> BirthsList(eventList = eventList)
-                                "deaths" -> DeathsList(eventList = eventList)
-                                "holidays" -> HolidaysList(eventList = eventList)
+                                "events" -> EventsList(eventList = eventList, favouriteViewModel = favouriteViewModel)
+                                "births" -> BirthsList(eventList = eventList, favouriteViewModel = favouriteViewModel)
+                                "deaths" -> DeathsList(eventList = eventList, favouriteViewModel = favouriteViewModel)
+                                "holidays" -> HolidaysList(eventList = eventList, favouriteViewModel = favouriteViewModel)
                                 else -> {
-                                    Log.d("Error", "EmptyList")
                                     emptyList<AllEvents>()
                                 }
                             }
@@ -377,8 +370,9 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: 
                                 expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(text = "Add to favourites") },
+                                    text = { Text(text = "Add to Favourites") },
                                     onClick = {
+                                        
                                         val favEvent = Favourite(
                                             event.text,
                                             event.pages[0].titles?.normalized.toString(),
@@ -387,9 +381,7 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: 
                                             0
                                         )
                                         coroutineScope.launch {
-                                            if (favEvent != null) {
-                                                favouriteViewModel.addToFavourites(favEvent)
-                                            }
+                                            favouriteViewModel.addToFavourites(favEvent)
                                         }
 
                                         isMenuExpanded = false
@@ -436,7 +428,9 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: 
     }
 }
 @Composable
-fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
+fun EventsList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: FavouriteViewModel){
+    val coroutineScope = rememberCoroutineScope()
+
     // Wyświetlanie listy zdarzeń
     LazyColumn(
         modifier = Modifier
@@ -486,8 +480,17 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
                                 expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(text = "Add to favourites") },
-                                    onClick = {
+                                    text = { Text(text = "Add to Favourites") },
+                                    onClick = {val favEvent = Favourite(
+                                        event.text,
+                                        event.pages[0].titles?.normalized.toString(),
+                                        event.pages[0].originalimage?.source.toString(),
+                                        event.year,
+                                        0
+                                    )
+                                        coroutineScope.launch {
+                                            favouriteViewModel.addToFavourites(favEvent)
+                                        }
 
                                         isMenuExpanded = false
                                     })
@@ -533,7 +536,10 @@ fun EventsList(eventList: StateFlow<Resource<AllEvents>>){
 }
 
 @Composable
-fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
+fun BirthsList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: FavouriteViewModel){
+
+    val coroutineScope = rememberCoroutineScope()
+
     // Wyświetlanie listy zdarzeń
     LazyColumn(
         modifier = Modifier
@@ -584,8 +590,21 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
                                 onDismissRequest = { isMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(text = "Add to favourites") },
-                                    onClick = { isMenuExpanded = false })
+                                    text = { Text(text = "Add to Favourites") },
+                                    onClick = {
+                                        val favEvent = Favourite(
+                                            event.text,
+                                            event.pages[0].titles?.normalized.toString(),
+                                            event.pages[0].originalimage?.source.toString(),
+                                            event.year,
+                                            0
+                                        )
+                                        coroutineScope.launch {
+                                            favouriteViewModel.addToFavourites(favEvent)
+                                        }
+
+                                        isMenuExpanded = false
+                                    })
                             }
 
                         }
@@ -628,7 +647,10 @@ fun BirthsList(eventList: StateFlow<Resource<AllEvents>>){
 }
 
 @Composable
-fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
+fun DeathsList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: FavouriteViewModel){
+
+    val coroutineScope = rememberCoroutineScope()
+
     // Wyświetlanie listy zdarzeń
     LazyColumn(
         modifier = Modifier
@@ -677,8 +699,21 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
                                 expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(text = "Add to favourites") },
-                                    onClick = {isMenuExpanded = false})
+                                    text = { Text(text = "Add to Favourites") },
+                                    onClick = {
+                                        val favEvent = Favourite(
+                                            event.text,
+                                            event.pages[0].titles?.normalized.toString(),
+                                            event.pages[0].originalimage?.source.toString(),
+                                            event.year,
+                                            0
+                                        )
+                                        coroutineScope.launch {
+                                            favouriteViewModel.addToFavourites(favEvent)
+                                        }
+
+                                        isMenuExpanded = false
+                                    })
                             }
 
                         }
@@ -721,7 +756,10 @@ fun DeathsList(eventList: StateFlow<Resource<AllEvents>>){
 }
 
 @Composable
-fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
+fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: FavouriteViewModel){
+
+    val coroutineScope = rememberCoroutineScope()
+
     // Wyświetlanie listy zdarzeń
     LazyColumn(
         modifier = Modifier
@@ -771,8 +809,21 @@ fun HolidaysList(eventList: StateFlow<Resource<AllEvents>>){
                                 expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(text = "Add to favourites") },
-                                    onClick = {isMenuExpanded = false})
+                                    text = { Text(text = "Add to Favourites") },
+                                    onClick = {
+                                        val favEvent = Favourite(
+                                            event.text,
+                                            event.pages[0].titles?.normalized.toString(),
+                                            event.pages[0].originalimage?.source.toString(),
+                                            null,
+                                            0
+                                        )
+                                        coroutineScope.launch {
+                                            favouriteViewModel.addToFavourites(favEvent)
+                                        }
+
+                                        isMenuExpanded = false
+                                    })
                             }
 
                         }

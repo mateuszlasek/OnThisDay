@@ -51,11 +51,12 @@ import kotlinx.coroutines.launch
 fun FavouriteScreen(favouriteViewModel: FavouriteViewModel) {
     val coroutineScope = rememberCoroutineScope()
     val favourites = favouriteViewModel.getFavorites().collectAsState(initial = emptyList())
-    val favouriteId = remember { mutableStateOf(0) }
+    val isHoliday = false
 
     LazyColumn(
         modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp)
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
+            .padding(start = 8.dp, top = 8.dp, end = 8.dp)
     ) {
 
         items(favourites.value.size) { favourite ->
@@ -76,24 +77,70 @@ fun FavouriteScreen(favouriteViewModel: FavouriteViewModel) {
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
-                ){
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
                     ) {
+                        if(favourites.value[favourite].year == null){
+                            Text(
+                                text = favourites.value[favourite].title.toString(),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            Text(
+                                text = favourites.value[favourite].year.toString(),
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.TopEnd)
+                        ) {
+                            IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "More"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded,
+                                onDismissRequest = { isMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(text = "Remove from Favourites") },
+                                    onClick = {
+                                        val favEvent = Favourite(
+                                            favourites.value[favourite].text,
+                                            favourites.value[favourite].title,
+                                            favourites.value[favourite].originalimage,
+                                            favourites.value[favourite].year,
+                                            favourites.value[favourite].id
+                                        )
+                                        coroutineScope.launch {
+                                            favouriteViewModel.removeFromFavourites(favEvent)
+                                        }
+
+                                        isMenuExpanded = false
+                                    })
+                            }
+                        }
+
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if(favourites.value[favourite].year != null){
                         Text(
-                            text = favourites.value[favourite].year.toString(),
-                            fontSize = 20.sp,
+                            modifier = Modifier,
+                            text = favourites.value[favourite].title.toString(),
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        modifier = Modifier,
-                        text = favourites.value[favourite].title.toString(),
-                        fontWeight = FontWeight.Bold
-                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(text = favourites.value[favourite].text.toString())
