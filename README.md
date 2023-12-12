@@ -1,5 +1,5 @@
 This is simple app where you can browse through historical events that happened on a specific day.
-App uses wikimedia [On Thi Day API](https://api.wikimedia.org/wiki/Feed_API/Reference/On_this_day)
+App uses wikimedia [On This Day API](https://api.wikimedia.org/wiki/Feed_API/Reference/On_this_day)
 
 # Preview:
 
