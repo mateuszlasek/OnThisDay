@@ -1,51 +1,40 @@
 package com.mateusz.onthisday
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mateusz.onthisday.data.db.FavouriteViewModel
-import com.mateusz.onthisday.data.remote.EventApi
 import com.mateusz.onthisday.eventlist.EventListScreen
 import com.mateusz.onthisday.eventlist.EventListViewModel
-import com.mateusz.onthisday.repository.EventRepository
+import com.mateusz.onthisday.ui.screen.FavouriteScreen
+import com.mateusz.onthisday.ui.screen.SettingsScreen
 import com.mateusz.onthisday.ui.theme.OnThisDayTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 
 data class BottomNavigationItem(
@@ -64,7 +53,8 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         setContent {
-            OnThisDayTheme {
+            var darkTheme by remember { mutableStateOf(true) }
+            OnThisDayTheme(darkTheme) {
                 val navController = rememberNavController()
                 val items = listOf(
                     BottomNavigationItem(
@@ -83,7 +73,7 @@ class MainActivity : ComponentActivity() {
                         title = "Settings",
                         selectedIcon = Icons.Filled.Settings,
                         unselectedIcon = Icons.Outlined.Settings,
-                        hasNews = true,
+                        hasNews = false,
                     ),
                 )
                 var selectedItemIndex by rememberSaveable {
@@ -148,7 +138,10 @@ class MainActivity : ComponentActivity() {
                                     FavouriteScreen(favouriteViewModel = favouriteViewModel)
                                 }
                                 composable("Settings"){
-
+                                    SettingsScreen(
+                                        darkTheme = darkTheme,
+                                        onThemeUpdated = { darkTheme = !darkTheme}
+                                        )
                                 }
                             }
 
