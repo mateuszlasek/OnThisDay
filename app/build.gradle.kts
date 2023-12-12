@@ -76,6 +76,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    //Ext icons
+    implementation("androidx.compose.material:material-icons-extended:1.3.1")
 
     //Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
