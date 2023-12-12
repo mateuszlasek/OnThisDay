@@ -3,12 +3,11 @@ package com.mateusz.onthisday.data.db
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.mateusz.onthisday.data.db.entity.Favourite
+import com.mateusz.onthisday.data.models.Favourite
 import com.mateusz.onthisday.repository.FavouriteRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 class FavouriteViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -23,9 +22,9 @@ class FavouriteViewModel(app: Application) : AndroidViewModel(app) {
     fun getFavorites(): Flow<List<Favourite>> {
         return repositoryFav.getAll()
     }
-    suspend fun getFavouriteByTitle(favouriteTitle: String?): Favourite {
-        return repositoryFav.getFavouriteByTitle(favouriteTitle)
-    }
+//    suspend fun isFavouriteExists(text: String?): Boolean {
+//        return repositoryFav.isFavouriteExists(text)
+//    }
     suspend fun addToFavourites(event: Favourite){
         val favouriteQuote = Favourite(
             event.text,

@@ -1,12 +1,16 @@
-package com.mateusz.onthisday.data.db.entity
+package com.mateusz.onthisday.data.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.mateusz.onthisday.data.remote.responses.Originalimage
-import com.mateusz.onthisday.data.remote.responses.Pages
-import org.json.JSONArray
 
-@Entity(tableName="favourites")
+@Entity(
+    tableName="favourites",
+    indices = [
+        Index("text", unique = true),
+        Index("id", unique = true)
+    ]
+)
 class Favourite(
     val text: String?,
     val title: String?,

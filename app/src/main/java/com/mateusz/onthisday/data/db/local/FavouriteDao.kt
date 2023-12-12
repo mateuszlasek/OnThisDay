@@ -1,11 +1,11 @@
-package com.mateusz.onthisday.data.db.dao
+package com.mateusz.onthisday.data.db.local
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.mateusz.onthisday.data.db.entity.Favourite
+import com.mateusz.onthisday.data.models.Favourite
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,10 +16,6 @@ interface FavouriteDao {
 
     @Delete
     suspend fun delete(favourite: Favourite)
-
-    @Query("SELECT * FROM favourites WHERE id = :favouriteId")
-    suspend fun getFavouriteByTitle(favouriteId: String?): Favourite
-
 
     @Query("SELECT * FROM favourites")
     fun getAll(): Flow<List<Favourite>>
