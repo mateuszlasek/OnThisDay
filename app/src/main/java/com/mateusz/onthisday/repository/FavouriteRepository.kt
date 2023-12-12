@@ -5,8 +5,11 @@ import com.mateusz.onthisday.data.models.Favourite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FavouriteRepository(private val favouriteDao: FavouriteDao) {
+class FavouriteRepository @Inject constructor(
+    private val favouriteDao: FavouriteDao
+) {
 
     fun getAll(): Flow<List<Favourite>> {
         return favouriteDao.getAll()

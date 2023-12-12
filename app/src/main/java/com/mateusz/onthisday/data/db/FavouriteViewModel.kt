@@ -5,11 +5,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mateusz.onthisday.data.models.Favourite
 import com.mateusz.onthisday.repository.FavouriteRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FavouriteViewModel(app: Application) : AndroidViewModel(app) {
+@HiltViewModel
+class FavouriteViewModel @Inject constructor(
+    app: Application
+) : AndroidViewModel(app) {
 
     private var repositoryFav: FavouriteRepository
 
