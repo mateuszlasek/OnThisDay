@@ -1,6 +1,8 @@
 package com.mateusz.onthisday.eventlist
 
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -47,12 +49,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mateusz.onthisday.data.db.FavouriteViewModel
-import com.mateusz.onthisday.data.db.entity.Favourite
+import com.mateusz.onthisday.data.models.Favourite
 import com.mateusz.onthisday.data.remote.responses.AllEvents
 import com.mateusz.onthisday.util.Resource
 import com.mateusz.onthisday.util.TabItem
@@ -300,6 +303,7 @@ fun ErrorScreen(currentDate: LocalDate, viewModel: EventListViewModel) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -372,7 +376,7 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: 
                                 DropdownMenuItem(
                                     text = { Text(text = "Add to Favourites") },
                                     onClick = {
-                                        
+
                                         val favEvent = Favourite(
                                             event.text,
                                             event.pages[0].titles?.normalized.toString(),
@@ -380,6 +384,8 @@ fun SelectedList(eventList: StateFlow<Resource<AllEvents>>, favouriteViewModel: 
                                             event.year,
                                             0
                                         )
+
+
                                         coroutineScope.launch {
                                             favouriteViewModel.addToFavourites(favEvent)
                                         }
