@@ -3,7 +3,7 @@ App uses wikimedia [On This Day API](https://api.wikimedia.org/wiki/Feed_API/Ref
 
 # Preview:
 
-![Preview](https://raw.githubusercontent.com/serwus997/OnThisDay/main/a1.png) ![Preview](https://raw.githubusercontent.com/serwus997/OnThisDay/main/a2.png)
+![Preview](https://raw.githubusercontent.com/serwus997/OnThisDay/main/preview.png)
 
 # This app contains:
 
